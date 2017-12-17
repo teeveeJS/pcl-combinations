@@ -1,0 +1,2 @@
+#ignore all outputted xlsx files
+*.xlsx
