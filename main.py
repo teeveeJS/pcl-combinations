@@ -1,6 +1,7 @@
 import urllib.request
 import re
 from itertools import combinations
+from valid_file_name import valid_file_name
 
 class Player:
     def __init__(self, n, r, fa=False, is_f=False):
@@ -22,9 +23,6 @@ def free_agent_count(lst):
 def get_average_rating(lst):
     return sum(list(map(lambda p: p.get_rating, lst))) / len(lst)
 
-def has_female(lst):
-    return any([p.is_female for p in lst])
-
 def output_lst(lst):
     out = ""
     for p in lst:
@@ -42,7 +40,7 @@ def main():
         method = input(">> ").strip()
 
     if method == "load":
-        url = input("Please enter url\n>> ").strip()
+        url = input("Please enter url.\n>> ").strip()
         conn = urllib.request.urlopen(url)
 
         data = conn.read()
@@ -104,8 +102,9 @@ def main():
     if input("Write to Excel (y/n)?\n>> ").strip() == "y":
         import xlsxwriter as xw
 
-        file_name = input("Please enter file name.\n>> ").strip()
-        #TODO: validate the file name
+        file_name = ""
+        while not valid_file_name(file_name):
+            file_name = input("Please enter file name.\n>> ").strip()
 
         wb = xw.Workbook(file_name + ".xlsx")
         ws1 = wb.add_worksheet("Combinations")
@@ -141,7 +140,6 @@ def main():
         col2 = 0
         for p in players:
             ws2.write(row2, col2, p.name)
-            #TODO: fit column width
             col2 += 1
             ws2.write(row2, col2, p.rating)
             col2 += 1

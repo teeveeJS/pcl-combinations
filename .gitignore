@@ -1,2 +1,5 @@
 #ignore all outputted xlsx files
 *.xlsx
+
+#ignore pycache
+/__pycache__/
