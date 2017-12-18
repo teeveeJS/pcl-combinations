@@ -6,7 +6,7 @@ class Player:
     def __init__(self, n, r, fa=False, is_f=False):
         self.name = n
         self.rating = int(r)
-        
+
         #these should be type-casted to bools
         self.is_free_agent = fa
         self.is_female = is_f
@@ -111,9 +111,11 @@ def main():
         ws1 = wb.add_worksheet("Combinations")
         ws2 = wb.add_worksheet("Players")
 
+        title = wb.add_format({'bold': True})
+
         for i in range(4):
-            ws1.write(0, i, "Board {0}".format(i+1))
-        ws1.write(0, 4, "Avg Rating")
+            ws1.write(0, i, "Board {0}".format(i+1), title)
+        ws1.write(0, 4, "Avg Rating", title)
 
         row1 = 1
         col1 = 0
@@ -125,10 +127,15 @@ def main():
             col1 = 0
             row1 += 1
 
-        ws2.write(0, 0, "Player Name")
-        ws2.write(0, 1, "Rating")
-        ws2.write(0, 2, "Status")
-        ws2.write(0, 3, "Gender")
+        #hopefully there is no player with a super long name who isn't in the combinations
+        max_len = max([len(p.name) for p in players])
+        ws1.set_column(0, 3, max_len + 10)
+        ws1.set_column(4, 4, 10)
+
+        ws2.write(0, 0, "Player Name", title)
+        ws2.write(0, 1, "Rating", title)
+        ws2.write(0, 2, "Status", title)
+        ws2.write(0, 3, "Gender", title)
 
         row2 = 1
         col2 = 0
@@ -143,6 +150,8 @@ def main():
             ws2.write(row2, col2, p.is_female)
             col2 = 0
             row2 += 1
+
+        ws2.set_column(0, 0, max_len)
 
         wb.close()
 
