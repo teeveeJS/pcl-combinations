@@ -24,6 +24,5 @@ The desired minimum average rating is a control mechanism for the user to limit 
 The data can also be written to a Excel file if the user has XlsxWriter module installed. The module can be found here: http://xlsxwriter.readthedocs.io/getting_started.html
 
 ## Current Limitations
-* When loading data from a website, the program does not detect when a player is a free agent or female.
-    * As a result, the player will need to sift through the outputted data
-    * The program may not find a combination including a female player as the 100 rating points will not be deducted when calculating the average
+* The program's ability to detect a player's name in the list depends on the player having a chess.com account. If the player doesn't have one, the program will skip over that player and the ratings will be misaligned.
+* The regex used seems to easy to trick overall. Please be nice!

@@ -1,4 +1,5 @@
 import urllib.request
+import http.client
 import re
 from itertools import combinations
 from valid_file_name import valid_file_name
@@ -61,10 +62,31 @@ def main():
                 free_agents.append(False)
         # print(free_agents)
 
-        #currently no way of knowing whether the player is a female
+        gender_data = []
+        for name in name_data:
+            print(name)
+
+            headers = {}
+            headers['User-Agent'] = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"
+
+            h1 = http.client.HTTPConnection("ratings.fide.com")
+            h1.request("GET", "/search.phtml?search={0}".format(name.replace(" ", "%2C+")), headers=headers)
+            page_data = h1.getresponse().read()
+
+            m_or_f = re.findall(r'<td>&nbsp;([M, F])</td>|$', str(page_data))[0]
+
+            if m_or_f == "F":
+                gender_data.append(True)
+            else:
+                # there is a possibility that m_or_f == "" (player not found in fide database)
+                # program operates under the assumption that this player is not female
+                gender_data.append(False)
+
+        if len(name_data) != len(free_agents):
+            raise ValueError("Error in counting players. One player may not have a chess.com account. Sorry, try \'manual\' mode.")
 
         for i in range(len(name_data)):
-            players.append(Player(name_data[i], rtg_data[i], free_agents[i]))
+            players.append(Player(name_data[i], rtg_data[i], free_agents[i], gender_data[i]))
     else:
         print("Type \'exit\' when done.")
         while True:
