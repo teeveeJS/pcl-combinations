@@ -25,5 +25,5 @@ The data can also be written to a Excel file if the user has XlsxWriter module i
 
 ## Current Limitations
 * When loading data from a website, the program does not detect when a player is a free agent or female.
-  *As a result, the player will need to sift through the outputted data
-  *The program may not find a combination including a female player as the 100 rating points will not be deducted when calculating the average
+    * As a result, the player will need to sift through the outputted data
+    * The program may not find a combination including a female player as the 100 rating points will not be deducted when calculating the average

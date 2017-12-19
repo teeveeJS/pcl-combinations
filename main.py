@@ -43,21 +43,28 @@ def main():
         url = input("Please enter url.\n>> ").strip()
         conn = urllib.request.urlopen(url)
 
-        data = conn.read()
+        data = str(conn.read())
 
-        name_data = re.findall(r'target="_blank">(.*?)</td>', str(data))
+        name_data = re.findall(r'target="_blank">(.*?)</td>', data)
         # for d in name_data:
         #     print(d)
-        rtg_data = re.findall(r'>(\d{4}?)</td>', str(data))
+        rtg_data = re.findall(r'>(\d{4}?)</td>', data)
         # for r in rtg_data:
         #     print(r)
 
-        #TODO: free_agent
+        fa = re.findall(r'<td style="text-align: center;">(.*?)</td>', data)
+        free_agents = []
+        for s in fa:
+            if s == "Free Agent":
+                free_agents.append(True)
+            elif s == "Local" or s == "Streamer":
+                free_agents.append(False)
+        # print(free_agents)
 
-        #currently no way of knowing whether the player is a free agent or female
+        #currently no way of knowing whether the player is a female
 
         for i in range(len(name_data)):
-            players.append(Player(name_data[i], rtg_data[i]))
+            players.append(Player(name_data[i], rtg_data[i], free_agents[i]))
     else:
         print("Type \'exit\' when done.")
         while True:
