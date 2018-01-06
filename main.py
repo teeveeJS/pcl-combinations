@@ -4,6 +4,7 @@ import re
 from itertools import combinations
 from valid_file_name import valid_file_name
 
+
 class Player:
     def __init__(self, n, r, fa=False, is_f=False):
         self.name = n
@@ -18,11 +19,14 @@ class Player:
         rtg = self.rating - int(self.is_female) * 100
         return max(2000, min(2700, rtg))
 
+
 def free_agent_count(lst):
     return [p.is_free_agent for p in lst].count(True)
 
+
 def get_average_rating(lst):
     return sum(list(map(lambda p: p.get_rating, lst))) / len(lst)
+
 
 def output_lst(lst):
     out = ""
@@ -30,6 +34,14 @@ def output_lst(lst):
         #problem: long names
         out += "{0} ({1})\t".format(p.name, p.rating)
     return out
+
+
+def filter_players(lst, mask=[None, None, None, None]):
+    for i in range(len(mask)):
+        if mask[i] != None and lst[i] != mask[i]:
+            return False
+    return True
+
 
 def main():
     players = []
@@ -100,6 +112,23 @@ def main():
             print("{0} added!".format(new_player[0]))
             players.append(Player(*new_player))
 
+
+    # fix boards
+    board_choices = [None, None, None, None]
+
+    if input("Would you like to fix boards? (y/n)\n>>").strip() == "y":
+        print("Please enter player's last name.")
+        print("Just hit Enter if no preference for that board")
+        for i in range(4):
+            inp = input("Board {0}: ".format(i+1)).strip()
+            if inp != "":
+                for p in players:
+                    if inp.upper() in p.name.upper().split(" "):
+                        #simply picks the first player with that name
+                        board_choices[i] = p
+                        break
+
+
     #minimum and maximum conditions
     min_rating = int(input("Please enter desired minimum average rating.\n>> "))
     max_rating = 2500
@@ -113,7 +142,7 @@ def main():
     for c in combs:
         avg = get_average_rating(c)
 
-        if min_rating <= avg <= max_rating and free_agent_count(c) < 2:
+        if min_rating <= avg <= max_rating and free_agent_count(c) < 2 and filter_players(c, board_choices):
             comb_count += 1
             valid_combs.append([c, avg])
 
