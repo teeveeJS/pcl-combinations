@@ -58,13 +58,16 @@ def main():
 
         data = str(conn.read())
 
-        name_data = re.findall(r'target="_blank">(.*?)</td>', data)
-        # for d in name_data:
-        #     print(d)
-        rtg_data = re.findall(r'>(\d{4}?)</td>', data)
-        # for r in rtg_data:
-        #     print(r)
+        # n_data = re.findall(r'<a href="https:\/\/www.chess.com\/member\/.*" target="_blank">(.*?)</a>', data)
 
+        name_data = re.findall(r'target="_blank">(.*?)</td>', data)
+        #filter win, loss, and tie from names
+        for i in range(len(name_data)):
+            if name_data[i].startswith("Loss") or name_data[i].startswith("Win") \
+             or name_data[i].startswith("Tie"):
+                del name_data[i]
+
+        rtg_data = re.findall(r'>(\d{4}?)</td>', data)
         fa = re.findall(r'<td style="text-align: center;">(.*?)</td>', data)
         free_agents = []
         for s in fa:
@@ -142,7 +145,7 @@ def main():
     for c in combs:
         avg = get_average_rating(c)
 
-        if min_rating <= avg <= max_rating and free_agent_count(c) < 2 and filter_players(c, board_choices):
+        if min_rating <= avg < max_rating and free_agent_count(c) < 2 and filter_players(c, board_choices):
             comb_count += 1
             valid_combs.append([c, avg])
 

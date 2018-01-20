@@ -25,4 +25,4 @@ The data can also be written to a Excel file if the user has XlsxWriter module i
 
 ## Current Limitations
 * The program's ability to detect a player's name in the list depends on the player having a chess.com account. If the player doesn't have one, the program will skip over that player and the ratings will be misaligned.
-* The regex used seems to easy to trick overall. Please be nice!
+* The regex used seems too easy to trick overall. Please be nice!
