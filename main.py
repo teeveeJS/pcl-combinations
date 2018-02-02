@@ -58,6 +58,18 @@ def main():
 
         data = str(conn.read())
 
+
+        """ WORK IN PROGRESS"""
+        # table_data = re.findall(r'<tr style="background-color: #f8f8f8;">(.*?)</tr>', data)
+        # print(table_data)
+        #
+        #
+        # import sys
+        # sys.exit()
+
+
+
+
         # n_data = re.findall(r'<a href="https:\/\/www.chess.com\/member\/.*" target="_blank">(.*?)</a>', data)
 
         name_data = re.findall(r'target="_blank">(.*?)</td>', data)
@@ -67,7 +79,9 @@ def main():
              or name_data[i].startswith("Tie"):
                 del name_data[i]
 
+        # rtg_data = re.findall(r'<\/a>\s<\/td>\s<td style=\"text-align: center;\">(\d{4}?)<\/td>', data)
         rtg_data = re.findall(r'>(\d{4}?)</td>', data)
+        print(rtg_data)
         fa = re.findall(r'<td style="text-align: center;">(.*?)</td>', data)
         free_agents = []
         for s in fa:
