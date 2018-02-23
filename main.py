@@ -58,30 +58,22 @@ def main():
 
         data = str(conn.read())
 
+        # name and rating data and a bunch of extraneous stuff from regex
+        n_r = re.findall(r'(target="_blank">(.*?)</td>|>(\d{4}?)</td>)', data)
 
-        """ WORK IN PROGRESS"""
-        # table_data = re.findall(r'<tr style="background-color: #f8f8f8;">(.*?)</tr>', data)
-        # print(table_data)
-        #
-        #
-        # import sys
-        # sys.exit()
+        player_names = []
+        player_ratings = []
+        # filter out the useless info
+        # most importantly, the performance ratings!!
+        for i in range(len(n_r)):
+            if n_r[i][0].startswith("target="):
+                if n_r[i][1].startswith("Loss") or n_r[i][1].startswith("Win") \
+                   or n_r[i][1].startswith("Tie"):
+                       break
+                player_names.append(n_r[i][1])
+                player_ratings.append(int(n_r[i + 1][2]))
 
 
-
-
-        # n_data = re.findall(r'<a href="https:\/\/www.chess.com\/member\/.*" target="_blank">(.*?)</a>', data)
-
-        name_data = re.findall(r'target="_blank">(.*?)</td>', data)
-        #filter win, loss, and tie from names
-        for i in range(len(name_data)):
-            if name_data[i].startswith("Loss") or name_data[i].startswith("Win") \
-             or name_data[i].startswith("Tie"):
-                del name_data[i]
-
-        # rtg_data = re.findall(r'<\/a>\s<\/td>\s<td style=\"text-align: center;\">(\d{4}?)<\/td>', data)
-        rtg_data = re.findall(r'>(\d{4}?)</td>', data)
-        print(rtg_data)
         fa = re.findall(r'<td style="text-align: center;">(.*?)</td>', data)
         free_agents = []
         for s in fa:
@@ -92,14 +84,11 @@ def main():
         # print(free_agents)
 
         gender_data = []
-        for name in name_data:
+        for name in player_names:
             print(name)
 
-            headers = {}
-            headers['User-Agent'] = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"
-
             h1 = http.client.HTTPConnection("ratings.fide.com")
-            h1.request("GET", "/search.phtml?search={0}".format(name.replace(" ", "%2C+")), headers=headers)
+            h1.request("GET", "/search.phtml?search={0}".format(name.replace(" ", "%2C+")), headers={})#headers=headers)
             page_data = h1.getresponse().read()
 
             m_or_f = re.findall(r'<td>&nbsp;([M, F])</td>|$', str(page_data))[0]
@@ -111,11 +100,11 @@ def main():
                 # program operates under the assumption that this player is not female
                 gender_data.append(False)
 
-        if len(name_data) != len(free_agents):
+        if len(player_names) != len(free_agents):
             raise ValueError("Error in counting players. One player may not have a chess.com account. Sorry, try \'manual\' mode.")
 
-        for i in range(len(name_data)):
-            players.append(Player(name_data[i], rtg_data[i], free_agents[i], gender_data[i]))
+        for i in range(len(player_names)):
+            players.append(Player(player_names[i], player_ratings[i], free_agents[i], gender_data[i]))
     else:
         print("Type \'exit\' when done.")
         while True:
