@@ -6,7 +6,7 @@ from valid_file_name import valid_file_name
 
 
 class Player:
-    def __init__(self, n, r, fa=False, is_f=False):
+    def __init__(self, n, r, fa=False, is_f=False, s=None):
         self.name = n
         self.rating = int(r)
 
@@ -14,10 +14,19 @@ class Player:
         self.is_free_agent = fa
         self.is_female = is_f
 
+        self.strength = s
+
     @property
     def get_rating(self):
         rtg = self.rating - int(self.is_female) * 100
         return max(2000, min(2700, rtg))
+
+    @property
+    def get_stregth(self):
+        if not self.strength:
+            return self.strength
+        else:
+            return self.rating
 
 
 def free_agent_count(lst):
@@ -84,21 +93,36 @@ def main():
         # print(free_agents)
 
         gender_data = []
+        strength_data = []
         for name in player_names:
             print(name)
 
-            h1 = http.client.HTTPConnection("ratings.fide.com")
-            h1.request("GET", "/search.phtml?search={0}".format(name.replace(" ", "%2C+")), headers={})#headers=headers)
-            page_data = h1.getresponse().read()
+            search_name = name.split(" ")
+            search_name = [search_name[-1]] + search_name[:-1]
+            search_name = "%2C+".join(search_name)
 
-            m_or_f = re.findall(r'<td>&nbsp;([M, F])</td>|$', str(page_data))[0]
+            player_url = "https://chess-db.com/public/execute.jsp?name={0}&stype=player".format(search_name)
+            conn_p = urllib.request.urlopen(player_url)
+            page_data = str(conn_p.read())
 
-            if m_or_f == "F":
-                gender_data.append(True)
-            else:
-                # there is a possibility that m_or_f == "" (player not found in fide database)
-                # program operates under the assumption that this player is not female
+            try:
+                first_hit = re.findall(r'<tr><td>1</td>(.*?)</tr>', str(page_data))[0]
+
+                try:
+                    strength_data.append(re.findall(r'<td>(\d{4}?)</td>', first_hit)[0])
+                except IndexError:
+                    print("Player {0} rating not found".format(name))
+                finally:
+                    strength_data.append(None)
+
+                gender_data.append('<td>w </td>' in first_hit or '<td>wi</td>' in first_hit)
+                
+            except IndexError:
+                print("Player {0} not found".format(name))
+            finally:
+                strength_data.append(None)
                 gender_data.append(False)
+
 
         if len(player_names) != len(free_agents):
             raise ValueError("Error in counting players. One player may not have a chess.com account. Sorry, try \'manual\' mode.")
