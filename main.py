@@ -1,6 +1,6 @@
 import urllib.request
-import http.client
 import re
+import sys
 from itertools import combinations
 from valid_file_name import valid_file_name
 
@@ -23,7 +23,7 @@ class Player:
 
     @property
     def get_stregth(self):
-        if not self.strength:
+        if not self.strength == None:
             return self.strength
         else:
             return self.rating
@@ -35,6 +35,10 @@ def free_agent_count(lst):
 
 def get_average_rating(lst):
     return sum(list(map(lambda p: p.get_rating, lst))) / len(lst)
+
+
+def get_average_strength(lst):
+    return sum([p.get_stregth for p in lst]) / len(lst)
 
 
 def output_lst(lst):
@@ -109,17 +113,15 @@ def main():
                 first_hit = re.findall(r'<tr><td>1</td>(.*?)</tr>', str(page_data))[0]
 
                 try:
-                    strength_data.append(re.findall(r'<td>(\d{4}?)</td>', first_hit)[0])
+                    strength_data.append(int(re.findall(r'<td>(\d{4}?)</td>', first_hit)[0]))
                 except IndexError:
                     print("Player {0} rating not found".format(name))
-                finally:
                     strength_data.append(None)
 
                 gender_data.append('<td>w </td>' in first_hit or '<td>wi</td>' in first_hit)
-                
+
             except IndexError:
                 print("Player {0} not found".format(name))
-            finally:
                 strength_data.append(None)
                 gender_data.append(False)
 
@@ -128,7 +130,7 @@ def main():
             raise ValueError("Error in counting players. One player may not have a chess.com account. Sorry, try \'manual\' mode.")
 
         for i in range(len(player_names)):
-            players.append(Player(player_names[i], player_ratings[i], free_agents[i], gender_data[i]))
+            players.append(Player(player_names[i], player_ratings[i], free_agents[i], gender_data[i], strength_data[i]))
     else:
         print("Type \'exit\' when done.")
         while True:
@@ -160,7 +162,10 @@ def main():
 
 
     #minimum and maximum conditions
-    min_rating = int(input("Please enter desired minimum average rating.\n>> "))
+    min_rating = -1
+    while not (2000 <= min_rating < 2500):
+        min_rating = int(input("Please enter desired minimum average rating.\n>> "))
+
     max_rating = 2500
 
     combs = combinations(players, 4)
@@ -171,18 +176,19 @@ def main():
     print("Possible combinations:")
     for c in combs:
         avg = get_average_rating(c)
+        strength_avg = get_average_strength(c)
 
         if min_rating <= avg < max_rating and free_agent_count(c) < 2 and filter_players(c, board_choices):
             comb_count += 1
-            valid_combs.append([c, avg])
+            valid_combs.append([c, avg, strength_avg])
 
-            print(output_lst(c), avg)
+            print(output_lst(c), avg, strength_avg)
 
     valid_combs.sort(key=lambda c: -c[1]) #sort by avg rating (high to low)
     n = min(len(valid_combs), 10) #in case there are less than 10 combinations
     print("\nThe {0} best combinations are:".format(n))
     for i in range(n):
-        print(output_lst(valid_combs[i][0]), valid_combs[i][1])
+        print(output_lst(valid_combs[i][0]), valid_combs[i][1], valid_combs[i][2])
 
 
     #TODO: 3 OPTIONS: Display best, display all, write to excel
@@ -203,26 +209,29 @@ def main():
         for i in range(4):
             ws1.write(0, i, "Board {0}".format(i+1), title)
         ws1.write(0, 4, "Avg Rating", title)
+        ws1.write(0, 5, "Avg Strength", title)
 
         row1 = 1
         col1 = 0
-        for c, a in valid_combs:
+        for c, a, s in valid_combs:
             for p in c:
-                ws1.write(row1, col1, "{0} ({1})".format(p.name, p.rating))
+                ws1.write(row1, col1, "{0} ({1}; {2})".format(p.name, p.rating, p.get_stregth))
                 col1 += 1
             ws1.write(row1, col1, a)
+            ws1.write(row1, col1+1, s)
             col1 = 0
             row1 += 1
 
         #hopefully there is no player with a super long name who isn't in the combinations
         max_len = max([len(p.name) for p in players])
         ws1.set_column(0, 3, max_len + 10)
-        ws1.set_column(4, 4, 10)
+        ws1.set_column(4, 5, 12)
 
         ws2.write(0, 0, "Player Name", title)
         ws2.write(0, 1, "Rating", title)
-        ws2.write(0, 2, "Status", title)
-        ws2.write(0, 3, "Gender", title)
+        ws2.write(0, 2, "Strength", title)
+        ws2.write(0, 3, "Status", title)
+        ws2.write(0, 4, "Gender", title)
 
         row2 = 1
         col2 = 0
@@ -230,6 +239,8 @@ def main():
             ws2.write(row2, col2, p.name)
             col2 += 1
             ws2.write(row2, col2, p.rating)
+            col2 += 1
+            ws2.write(row2, col2, p.get_stregth)
             col2 += 1
             ws2.write(row2, col2, p.is_free_agent)
             col2 += 1
