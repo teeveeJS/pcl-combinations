@@ -46,17 +46,11 @@ def main():
             url = sys.argv[2]
         players = load_web(url)
 
-    # method = ""
-    # while not (method in ["load", "manual"]):
-    #     print("Type \'load\' to load player data from the Internet.")
-    #     print("Type \'manual\' to enter player data manually.")
-    #     method = input(">> ").strip()
-
 
     # fix boards
     board_choices = [None, None, None, None]
 
-    if input("Would you like to fix boards? (y/n)\n>>").strip() == "y":
+    if input("Would you like to fix boards? (y/n)\n>> ").strip() == "y":
         print("Please enter player's last name.")
         print("Hit Enter if no preference for that board")
         for i in range(4):
@@ -101,10 +95,8 @@ def main():
     for i in range(n):
         print(output_lst(valid_combs[i][0]), valid_combs[i][1], valid_combs[i][2])
 
-
-    #TODO: 3 OPTIONS: Display best, display all, write to excel
-
-    if input("Write to Excel (y/n)?\n>> ").strip() == "y":
+        
+    if input("Write to Excel? (y/n)\n>> ").strip() == "y":
         import xlsxwriter as xw
 
         file_name = ""
